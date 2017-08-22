@@ -21,7 +21,7 @@
 import React from 'react';
 import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import SetSeverityPopup from '../popups/SetSeverityPopup';
-import SeverityHelper from '../../../components/shared/SeverityHelper';
+import SeverityHelper from '../../shared/SeverityHelper';
 import { setIssueSeverity } from '../../../api/issues';
 /*:: import type { Issue } from '../types'; */
 

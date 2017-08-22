@@ -22,7 +22,7 @@ import React from 'react';
 import BubblePopup from '../../../components/common/BubblePopup';
 import SelectList from '../../../components/common/SelectList';
 import SelectListItem from '../../../components/common/SelectListItem';
-import SeverityHelper from '../../../components/shared/SeverityHelper';
+import SeverityHelper from '../../shared/SeverityHelper';
 import StatusHelper from '../../shared/StatusHelper';
 import QualifierIcon from '../../../components/shared/QualifierIcon';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';

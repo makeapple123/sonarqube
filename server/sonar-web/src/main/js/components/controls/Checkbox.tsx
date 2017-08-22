@@ -17,32 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
+import * as React from 'react';
+import * as classNames from 'classnames';
 
-export default class Checkbox extends React.PureComponent {
-  static propTypes = {
-    id: PropTypes.string,
-    onCheck: PropTypes.func.isRequired,
-    checked: PropTypes.bool.isRequired,
-    thirdState: PropTypes.bool,
-    className: PropTypes.any
-  };
+interface Props {
+  className?: string;
+  id?: string;
+  onCheck: (checked: boolean, id?: string) => void;
+  checked: boolean;
+  thirdState?: boolean;
+}
 
+export default class Checkbox extends React.PureComponent<Props> {
   static defaultProps = {
     thirdState: false
   };
 
-  componentWillMount() {
-    this.handleClick = this.handleClick.bind(this);
-  }
-
-  handleClick(e) {
-    e.preventDefault();
-    e.target.blur();
+  handleClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    event.currentTarget.blur();
     this.props.onCheck(!this.props.checked, this.props.id);
-  }
+  };
 
   render() {
     const className = classNames('icon-checkbox', this.props.className, {

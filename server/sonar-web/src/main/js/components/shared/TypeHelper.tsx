@@ -17,21 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-//@flow
-import React from 'react';
+import * as React from 'react';
 import IssueTypeIcon from '../ui/IssueTypeIcon';
 import { translate } from '../../helpers/l10n';
 
-/*::
-type Props = {
-  type: string
-};
-*/
+interface Props {
+  type: string;
+}
 
-const TypeHelper = (props /*: Props */) =>
-  <span>
-    <IssueTypeIcon className="little-spacer-right" query={props.type} />
-    {translate('issue.type', props.type)}
-  </span>;
-
-export default TypeHelper;
+export default function TypeHelper(props: Props) {
+  return (
+    <span>
+      <IssueTypeIcon className="little-spacer-right" query={props.type} />
+      {translate('issue.type', props.type)}
+    </span>
+  );
+}

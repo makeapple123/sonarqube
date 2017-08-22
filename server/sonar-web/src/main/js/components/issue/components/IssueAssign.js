@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import Avatar from '../../../components/ui/Avatar';
+import Avatar from '../../ui/Avatar';
 import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import SetAssigneePopup from '../popups/SetAssigneePopup';
 import { translate } from '../../../helpers/l10n';

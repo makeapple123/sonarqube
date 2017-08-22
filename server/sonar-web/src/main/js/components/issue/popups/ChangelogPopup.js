@@ -22,7 +22,7 @@ import React from 'react';
 import moment from 'moment';
 import { getIssueChangelog } from '../../../api/issues';
 import { translate } from '../../../helpers/l10n';
-import Avatar from '../../../components/ui/Avatar';
+import Avatar from '../../ui/Avatar';
 import BubblePopup from '../../../components/common/BubblePopup';
 import IssueChangelogDiff from '../components/IssueChangelogDiff';
 /*:: import type { ChangelogDiff } from '../components/IssueChangelogDiff'; */

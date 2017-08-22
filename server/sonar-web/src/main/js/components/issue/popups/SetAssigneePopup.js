@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import { debounce, map } from 'lodash';
-import Avatar from '../../../components/ui/Avatar';
+import Avatar from '../../ui/Avatar';
 import BubblePopup from '../../../components/common/BubblePopup';
 import SelectList from '../../../components/common/SelectList';
 import SelectListItem from '../../../components/common/SelectListItem';

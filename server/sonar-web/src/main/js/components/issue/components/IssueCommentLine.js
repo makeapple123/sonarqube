@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import moment from 'moment';
-import Avatar from '../../../components/ui/Avatar';
+import Avatar from '../../ui/Avatar';
 import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import CommentDeletePopup from '../popups/CommentDeletePopup';
 import CommentPopup from '../popups/CommentPopup';

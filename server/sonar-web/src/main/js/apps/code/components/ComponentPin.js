@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import Workspace from '../../../components/workspace/main';
-import PinIcon from '../../../components/shared/pin-icon';
+import PinIcon from '../../../components/icons-components/PinIcon';
 import { translate } from '../../../helpers/l10n';
 
 const ComponentPin = ({ component }) => {

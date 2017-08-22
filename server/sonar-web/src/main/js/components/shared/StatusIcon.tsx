@@ -17,11 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-//@flow
-import React from 'react';
-import classNames from 'classnames';
+import * as React from 'react';
+import * as classNames from 'classnames';
 
-export default function StatusIcon(props /*: { status: string, className?: string } */) {
-  const className = classNames('icon-status-' + props.status.toLowerCase(), props.className);
-  return <i className={className} />;
+interface Props {
+  className?: string;
+  status: string;
+}
+
+export default function StatusIcon({ className, status }: Props) {
+  return <i className={classNames('icon-status-' + status.toLowerCase(), className)} />;
 }

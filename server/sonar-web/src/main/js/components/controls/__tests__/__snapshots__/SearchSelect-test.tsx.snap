@@ -8,7 +8,6 @@ exports[`should render Select 1`] = `
   autosize={true}
   backspaceRemoves={true}
   backspaceToRemoveMessage="Press backspace to remove {label}"
-  cache={false}
   className="input-super-large"
   clearAllText="Clear all"
   clearRenderer={[Function]}

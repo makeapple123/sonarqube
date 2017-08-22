@@ -17,20 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-//@flow
-import React from 'react';
+import * as React from 'react';
 import StatusIcon from './StatusIcon';
 import { translate } from '../../helpers/l10n';
 
-export default function StatusHelper(
-  props /*: {
-  resolution?: string,
-  status: string,
-  className?: string
-} */
-) {
+interface Props {
+  className?: string;
+  resolution?: string;
+  status: string;
+}
+
+export default function StatusHelper(props: Props) {
   const resolution =
     props.resolution != null && ` (${translate('issue.resolution', props.resolution)})`;
+
   return (
     <span className={props.className}>
       <StatusIcon className="little-spacer-right" status={props.status} />

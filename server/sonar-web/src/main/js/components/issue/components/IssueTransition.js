@@ -22,7 +22,7 @@ import React from 'react';
 import { updateIssue } from '../actions';
 import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import SetTransitionPopup from '../popups/SetTransitionPopup';
-import StatusHelper from '../../../components/shared/StatusHelper';
+import StatusHelper from '../../shared/StatusHelper';
 import { setIssueTransition } from '../../../api/issues';
 /*:: import type { Issue } from '../types'; */
 

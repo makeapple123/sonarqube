@@ -17,25 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 
-/*::
-type Props = { className?: string, size?: number };
-*/
+interface Props {
+  className?: string;
+  size?: number;
+}
 
-export default function DeleteIcon({ className, size = 12 } /*: Props */) {
-  /* eslint-disable max-len */
+export default function OrganizationIcon({ className, size = 16 }: Props) {
   return (
     <svg
-      className={className}
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 14 14"
+      className={className}
+      height={size}
       width={size}
-      height={size}>
+      viewBox="0 0 16 16">
       <path
-        fill="#d4333f"
-        d="M14 11.27c0 .3-.1.58-.33.8l-1.6 1.6c-.22.22-.5.33-.8.33-.32 0-.6-.1-.8-.33L7 10.2l-3.46 3.47c-.22.22-.5.33-.8.33-.32 0-.6-.1-.8-.33l-1.6-1.6c-.23-.22-.34-.5-.34-.8 0-.32.1-.6.33-.8L3.8 7 .32 3.54C.1 3.32 0 3.04 0 2.74c0-.32.1-.6.33-.8l1.6-1.6c.22-.23.5-.34.8-.34.32 0 .6.1.8.33L7 3.8 10.46.32c.22-.22.5-.33.8-.33.32 0 .6.1.8.33l1.6 1.6c.23.22.34.5.34.8 0 .32-.1.6-.33.8L10.2 7l3.47 3.46c.22.22.33.5.33.8z"
+        style={{ fill: '#4b9fd5' }}
+        d="M13.5 6c-.4 0-.7.1-1.1.2L11 4.8v-.3C11 3.1 9.9 2 8.5 2S6 3.1 6 4.5v.2L4.5 6.2c-.3-.1-.7-.2-1-.2C2.1 6 1 7.1 1 8.5S2.1 11 3.5 11 6 9.9 6 8.5c0-.7-.3-1.3-.7-1.7l1-1c.4.6 1 1 1.7 1.1V9c-1.1.2-2 1.2-2 2.4C6 12.9 7.1 14 8.5 14s2.5-1.1 2.5-2.5c0-1.2-.9-2.2-2-2.4V6.9c.7-.1 1.2-.5 1.6-1.1l1 1c-.4.4-.6 1-.6 1.6 0 1.4 1.1 2.5 2.5 2.5s2.5-1 2.5-2.4S14.9 6 13.5 6zm-10 4C2.7 10 2 9.3 2 8.5S2.7 7 3.5 7 5 7.7 5 8.5 4.3 10 3.5 10zm6.5 1.5c0 .8-.7 1.5-1.5 1.5S7 12.3 7 11.5 7.7 10 8.5 10s1.5.7 1.5 1.5zM8.5 6C7.7 6 7 5.3 7 4.5S7.7 3 8.5 3s1.5.7 1.5 1.5S9.3 6 8.5 6zm5 4c-.8 0-1.5-.7-1.5-1.5S12.7 7 13.5 7s1.5.7 1.5 1.5-.7 1.5-1.5 1.5z"
       />
     </svg>
   );

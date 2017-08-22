@@ -25,7 +25,7 @@ interface Props {
 }
 
 export default function BugIcon({ className, size = 16 }: Props) {
-  /* eslint-disable max-len */
+
   return (
     <svg
       className={className}

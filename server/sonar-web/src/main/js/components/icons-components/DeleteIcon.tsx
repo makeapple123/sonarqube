@@ -17,26 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 
-/*:: type Props = { className?: string, size?: number }; */
+interface Props {
+  className?: string;
+  size?: number;
+}
 
-export default function TreemapIcon({ className, size = 14 } /*: Props */) {
-  /* eslint-disable max-len */
+export default function DeleteIcon({ className, size = 12 }: Props) {
   return (
     <svg
       className={className}
-      height={size}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 14 14"
       width={size}
-      viewBox="0 0 16 16"
-      fillRule="evenodd"
-      clipRule="evenodd"
-      strokeLinejoin="round"
-      strokeMiterlimit="1.414">
+      height={size}>
       <path
-        fill="currentColor"
-        d="M0 0h8v16h-8zM9.143 0h6.857v9.143h-6.857zM9.143 10.286h6.857v5.714h-6.857z"
+        fill="#d4333f"
+        d="M14 11.27c0 .3-.1.58-.33.8l-1.6 1.6c-.22.22-.5.33-.8.33-.32 0-.6-.1-.8-.33L7 10.2l-3.46 3.47c-.22.22-.5.33-.8.33-.32 0-.6-.1-.8-.33l-1.6-1.6c-.23-.22-.34-.5-.34-.8 0-.32.1-.6.33-.8L3.8 7 .32 3.54C.1 3.32 0 3.04 0 2.74c0-.32.1-.6.33-.8l1.6-1.6c.22-.23.5-.34.8-.34.32 0 .6.1.8.33L7 3.8 10.46.32c.22-.22.5-.33.8-.33.32 0 .6.1.8.33l1.6 1.6c.23.22.34.5.34.8 0 .32-.1.6-.33.8L10.2 7l3.47 3.46c.22.22.33.5.33.8z"
       />
     </svg>
   );

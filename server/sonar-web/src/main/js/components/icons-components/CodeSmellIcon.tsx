@@ -25,7 +25,6 @@ interface Props {
 }
 
 export default function CodeSmellIcon({ className, size = 16 }: Props) {
-  /* eslint-disable max-len */
   return (
     <svg
       className={className}

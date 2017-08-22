@@ -17,15 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 
-/*::
-type Props = { className?: string, size?: number };
-*/
+interface Props {
+  className?: string;
+  size?: number;
+}
 
-export default function ListIcon({ className, size = 16 } /*: Props */) {
-  /* eslint-disable max-len */
+export default function CloseIcon({ className, size = 16 }: Props) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -35,7 +34,7 @@ export default function ListIcon({ className, size = 16 } /*: Props */) {
       viewBox="0 0 16 16">
       <path
         fill="currentColor"
-        d="M15.045 11.526v1.007q0 0.204-0.149 0.354t-0.354 0.149h-13.084q-0.204 0-0.354-0.149t-0.149-0.354v-1.006q0-0.204 0.149-0.354t0.354-0.149h13.084q0.204 0 0.354 0.149t0.149 0.354zM15.045 8.506v1.006q0 0.204-0.149 0.354t-0.354 0.149h-13.084q-0.204 0-0.354-0.149t-0.149-0.354v-1.006q0-0.204 0.149-0.354t0.354-0.149h13.084q0.204 0 0.354 0.149t0.149 0.354zM15.045 5.487v1.006q0 0.204-0.149 0.354t-0.354 0.149h-13.084q-0.204 0-0.354-0.149t-0.149-0.354v-1.006q0-0.204 0.149-0.354t0.354-0.149h13.084q0.204 0 0.354 0.149t0.149 0.354zM15.045 2.468v1.006q0 0.204-0.149 0.354t-0.354 0.149h-13.084q-0.204 0-0.354-0.149t-0.149-0.354v-1.006q0-0.204 0.149-0.354t0.354-0.149h13.084q0.204 0 0.354 0.149t0.149 0.354z"
+        d="M12.843 11.232q0 0.357-0.25 0.607l-1.214 1.214q-0.25 0.25-0.607 0.25t-0.607-0.25l-2.625-2.625-2.625 2.625q-0.25 0.25-0.607 0.25t-0.607-0.25l-1.214-1.214q-0.25-0.25-0.25-0.607t0.25-0.607l2.625-2.625-2.625-2.625q-0.25-0.25-0.25-0.607t0.25-0.607l1.214-1.214q0.25-0.25 0.607-0.25t0.607 0.25l2.625 2.625 2.625-2.625q0.25-0.25 0.607-0.25t0.607 0.25l1.214 1.214q0.25 0.25 0.25 0.607t-0.25 0.607l-2.625 2.625 2.625 2.625q0.25 0.25 0.25 0.607z"
       />
     </svg>
   );

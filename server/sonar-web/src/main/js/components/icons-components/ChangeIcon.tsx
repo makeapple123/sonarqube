@@ -17,24 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 
-/*::
-type Props = { className?: string, size?: number };
-*/
+interface Props {
+  className?: string;
+  size?: number;
+}
 
-export default function BubblesIcon({ className, size = 16 } /*: Props */) {
+export default function ChangeIcon({ className, size = 12 }: Props) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       className={className}
-      height={size}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 14 14"
       width={size}
-      viewBox="0 0 16 16">
+      height={size}>
       <path
-        fill="currentColor"
-        d="M4.1 10.2c1 0 1.9.8 1.9 1.9S5.1 14 4.1 14s-1.9-.8-1.9-1.9.8-1.9 1.9-1.9m0-2C2 8.2.2 9.9.2 12.1S1.9 16 4.1 16 8 14.3 8 12.1 6.2 8.2 4.1 8.2zM10.3 2c2 0 3.7 1.7 3.7 3.7s-1.7 3.7-3.7 3.7-3.8-1.6-3.8-3.7S8.2 2 10.3 2m0-2C7.1 0 4.5 2.6 4.5 5.7s2.6 5.7 5.7 5.7S16 8.9 16 5.7 13.4 0 10.3 0z"
+        fill="#236a97"
+        d="M3.35 12.82l.85-.84L2.02 9.8l-.84.85v.98h1.2v1.2h.97zM8.2 4.24c0-.13-.08-.2-.22-.2-.06 0-.1.02-.15.06l-5 5c-.05.05-.08.1-.08.17 0 .13.07.2.2.2.07 0 .12-.02.16-.06l5.02-5c.05-.04.07-.1.07-.16zm-.5-1.77l3.83 3.84-7.7 7.7H0v-3.84l7.7-7.7zm6.3.88c0 .33-.1.6-.34.84L12.12 5.7 8.28 1.88 9.8.35c.24-.23.5-.35.85-.35.32 0 .6.12.84.35l2.16 2.16c.23.25.34.53.34.85z"
       />
     </svg>
   );

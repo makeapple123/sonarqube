@@ -20,7 +20,7 @@
 import moment from 'moment';
 import React from 'react';
 import IncrementalBadge from './IncrementalBadge';
-import PendingIcon from '../../../../components/shared/pending-icon';
+import PendingIcon from '../../../../components/icons-components/PendingIcon';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
 export default function ComponentNavMeta(props) {

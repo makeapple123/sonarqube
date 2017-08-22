@@ -25,12 +25,8 @@ interface Props {
   qualifier: string | null;
 }
 
-export default function QualifierIcon(props: Props) {
-  if (!props.qualifier) {
-    return null;
-  }
-
-  const className = classNames('icon-qualifier-' + props.qualifier.toLowerCase(), props.className);
-
-  return <i className={className} />;
+export default function QualifierIcon({ className, qualifier }: Props) {
+  return qualifier
+    ? <i className={classNames('icon-qualifier-' + qualifier.toLowerCase(), className)} />
+    : null;
 }

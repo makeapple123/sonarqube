@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import React from 'react';
 import RadioToggle from '../RadioToggle';
 import { change } from '../../../helpers/testUtils';
 
-function getSample(props) {
+function getSample(props?: any) {
   const options = [{ value: 'one', label: 'first' }, { value: 'two', label: 'second' }];
   return <RadioToggle options={options} name="sample" onCheck={() => true} {...props} />;
 }

@@ -21,7 +21,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import { Link } from 'react-router';
-import { DrilldownLink } from '../../../components/shared/drilldown-link';
+import { DrilldownLink } from '../../../components/shared/DrilldownLink';
 import Measure from '../../../components/measure/Measure';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import { getPeriodValue, isDiffMetric, formatMeasure } from '../../../helpers/measures';

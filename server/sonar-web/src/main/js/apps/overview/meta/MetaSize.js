@@ -20,7 +20,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { DrilldownLink } from '../../../components/shared/drilldown-link';
+import { DrilldownLink } from '../../../components/shared/DrilldownLink';
 import LanguageDistribution from '../../../components/charts/LanguageDistribution';
 import SizeRating from '../../../components/ui/SizeRating';
 import { formatMeasure } from '../../../helpers/measures';

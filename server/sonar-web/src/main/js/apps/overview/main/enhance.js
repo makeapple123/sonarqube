@@ -20,7 +20,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import moment from 'moment';
-import { DrilldownLink } from '../../../components/shared/drilldown-link';
+import { DrilldownLink } from '../../../components/shared/DrilldownLink';
 import BubblesIcon from '../../../components/icons-components/BubblesIcon';
 import HistoryIcon from '../../../components/icons-components/HistoryIcon';
 import Rating from './../../../components/ui/Rating';

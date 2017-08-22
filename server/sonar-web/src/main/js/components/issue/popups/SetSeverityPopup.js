@@ -23,7 +23,7 @@ import { translate } from '../../../helpers/l10n';
 import BubblePopup from '../../../components/common/BubblePopup';
 import SelectList from '../../../components/common/SelectList';
 import SelectListItem from '../../../components/common/SelectListItem';
-import SeverityIcon from '../../../components/shared/SeverityIcon';
+import SeverityIcon from '../../shared/SeverityIcon';
 /*:: import type { Issue } from '../types'; */
 
 /*::

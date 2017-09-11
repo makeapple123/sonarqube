@@ -31,7 +31,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.SonarException;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -245,7 +244,7 @@ public abstract class Request {
 
     try {
       return DateUtils.parseDate(s);
-    } catch (SonarException notDateException) {
+    } catch (RuntimeException notDateException) {
       throw new IllegalArgumentException(notDateException);
     }
   }

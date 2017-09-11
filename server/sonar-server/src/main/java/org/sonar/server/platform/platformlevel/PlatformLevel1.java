@@ -19,9 +19,9 @@
  */
 package org.sonar.server.platform.platformlevel;
 
+import java.time.Clock;
 import java.util.Properties;
 import javax.annotation.Nullable;
-import org.sonar.db.DBSessionsImpl;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.internal.ApiVersion;
@@ -32,6 +32,7 @@ import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.core.config.ConfigurationProvider;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.util.UuidFactoryImpl;
+import org.sonar.db.DBSessionsImpl;
 import org.sonar.db.DaoModule;
 import org.sonar.db.DatabaseChecker;
 import org.sonar.db.DbClient;
@@ -98,6 +99,7 @@ public class PlatformLevel1 extends PlatformLevel {
       TempFolderCleaner.class,
       new TempFolderProvider(),
       System2.INSTANCE,
+      Clock.systemDefaultZone(),
 
       // user session
       ThreadLocalUserSession.class,

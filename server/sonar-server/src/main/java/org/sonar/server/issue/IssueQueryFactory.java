@@ -25,6 +25,9 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
+import java.time.Clock;
+import java.time.OffsetDateTime;
+import java.time.Period;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -39,12 +42,9 @@ import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
-import org.joda.time.DateTime;
-import org.joda.time.format.ISOPeriodFormat;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
@@ -85,12 +85,12 @@ public class IssueQueryFactory {
 
   private static final String UNKNOWN = "<UNKNOWN>";
   private final DbClient dbClient;
-  private final System2 system;
+  private final Clock clock;
   private final UserSession userSession;
 
-  public IssueQueryFactory(DbClient dbClient, System2 system, UserSession userSession) {
+  public IssueQueryFactory(DbClient dbClient, Clock clock, UserSession userSession) {
     this.dbClient = dbClient;
-    this.system = system;
+    this.clock = clock;
     this.userSession = userSession;
   }
 
@@ -146,8 +146,10 @@ public class IssueQueryFactory {
 
     Date actualCreatedAfter = createdAfter;
     if (createdInLast != null) {
-      actualCreatedAfter = new DateTime(system.now()).minus(
-        ISOPeriodFormat.standard().parsePeriod("P" + createdInLast.toUpperCase(Locale.ENGLISH))).toDate();
+      actualCreatedAfter = Date.from(
+        OffsetDateTime.now(clock)
+          .minus(Period.parse("P" + createdInLast.toUpperCase(Locale.ENGLISH)))
+          .toInstant());
     }
     return actualCreatedAfter;
   }

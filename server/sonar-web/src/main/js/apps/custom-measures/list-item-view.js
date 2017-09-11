@@ -32,6 +32,8 @@ export default Marionette.ItemView.extend({
   },
 
   onRender() {
+    /* eslint-disable no-console */
+    console.log('I am rendered!', this.model);
     this.$el.attr('data-id', this.model.id);
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
   },

@@ -19,18 +19,23 @@
  */
 package org.sonar.process.es;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
+import org.sonar.process.System2;
+import org.sonar.process.logging.ListAppender;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -42,9 +47,60 @@ public class EsSettingsTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+  private ListAppender listAppender;
+
+  @After
+  public void tearDown() throws Exception {
+    if (listAppender != null) {
+      ListAppender.detachMemoryAppenderToLoggerOf(EsSettings.class, listAppender);
+    }
+  }
+
+  @Test
+  public void constructor_does_not_logs_warning_if_env_variable_ES_JVM_OPTIONS_is_not_set() {
+    this.listAppender = ListAppender.attachMemoryAppenderToLoggerOf(EsSettings.class);
+    Props props = minimalProps();
+    System2 system2 = mock(System2.class);
+    new EsSettings(props, new EsFileSystem(props), system2);
+
+    assertThat(listAppender.getLogs()).isEmpty();
+  }
+
+  @Test
+  public void constructor_does_not_logs_warning_if_env_variable_ES_JVM_OPTIONS_is_set_and_empty() {
+    this.listAppender = ListAppender.attachMemoryAppenderToLoggerOf(EsSettings.class);
+    Props props = minimalProps();
+    System2 system2 = mock(System2.class);
+    when(system2.getenv("ES_JVM_OPTIONS")).thenReturn("  ");
+    new EsSettings(props, new EsFileSystem(props), system2);
+
+    assertThat(listAppender.getLogs()).isEmpty();
+  }
+
+  @Test
+  public void constructor_logs_warning_if_env_variable_ES_JVM_OPTIONS_is_set_and_non_empty() throws IOException {
+    this.listAppender = ListAppender.attachMemoryAppenderToLoggerOf(EsSettings.class);
+    Props props = minimalProps();
+    System2 system2 = mock(System2.class);
+    when(system2.getenv("ES_JVM_OPTIONS")).thenReturn(randomAlphanumeric(2));
+    new EsSettings(props, new EsFileSystem(props), system2);
+
+    assertThat(listAppender.getLogs())
+      .extracting(ILoggingEvent::getMessage)
+      .containsOnly("ES_JVM_OPTIONS is defined but will be ignored. " +
+        "Use sonar.search.javaOpts and/or sonar.search.javaAdditionalOpts in sonar.properties to specify jvm options for Elasticsearch");
+  }
+
+  private Props minimalProps() {
+    Props props = new Props(new Properties());
+    props.set(ProcessProperties.PATH_HOME, randomAlphanumeric(12));
+    props.set(ProcessProperties.PATH_TEMP, randomAlphanumeric(12));
+    props.set(ProcessProperties.PATH_LOGS, randomAlphanumeric(12));
+    props.set(ProcessProperties.CLUSTER_NAME, randomAlphanumeric(12));
+    return props;
+  }
 
   @Test
   public void test_default_settings_for_standalone_mode() throws Exception {
@@ -57,7 +113,7 @@ public class EsSettingsTest {
     props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.CLUSTER_NAME, "sonarqube");
 
-    EsSettings esSettings = new EsSettings(props, new EsFileSystem(props));
+    EsSettings esSettings = new EsSettings(props, new EsFileSystem(props), System2.INSTANCE);
 
     Map<String, String> generated = esSettings.build();
     assertThat(generated.get("transport.tcp.port")).isEqualTo("1234");
@@ -95,7 +151,7 @@ public class EsSettingsTest {
     props.set(ProcessProperties.CLUSTER_ENABLED, "true");
     props.set(ProcessProperties.CLUSTER_NODE_NAME, "node-1");
 
-    EsSettings esSettings = new EsSettings(props, new EsFileSystem(props));
+    EsSettings esSettings = new EsSettings(props, new EsFileSystem(props), System2.INSTANCE);
 
     Map<String, String> generated = esSettings.build();
     assertThat(generated.get("cluster.name")).isEqualTo("sonarqube-1");
@@ -113,7 +169,7 @@ public class EsSettingsTest {
     props.set(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
-    EsSettings esSettings = new EsSettings(props, new EsFileSystem(props));
+    EsSettings esSettings = new EsSettings(props, new EsFileSystem(props), System2.INSTANCE);
     Map<String, String> generated = esSettings.build();
     assertThat(generated.get("node.name")).startsWith("sonarqube-");
   }
@@ -129,7 +185,7 @@ public class EsSettingsTest {
     props.set(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
-    EsSettings esSettings = new EsSettings(props, new EsFileSystem(props));
+    EsSettings esSettings = new EsSettings(props, new EsFileSystem(props), System2.INSTANCE);
     Map<String, String> generated = esSettings.build();
     assertThat(generated.get("node.name")).isEqualTo("sonarqube");
   }
@@ -142,7 +198,7 @@ public class EsSettingsTest {
     when(mockedEsFileSystem.getLogDirectory()).thenReturn(new File("/foo/log"));
     when(mockedEsFileSystem.getDataDirectory()).thenReturn(new File("/foo/data"));
 
-    EsSettings underTest = new EsSettings(minProps(new Random().nextBoolean()), mockedEsFileSystem);
+    EsSettings underTest = new EsSettings(minProps(new Random().nextBoolean()), mockedEsFileSystem, System2.INSTANCE);
 
     Map<String, String> generated = underTest.build();
     assertThat(generated.get("path.data")).isEqualTo("/foo/data");
@@ -154,7 +210,7 @@ public class EsSettingsTest {
   public void set_discovery_settings_if_cluster_is_enabled() throws Exception {
     Props props = minProps(CLUSTER_ENABLED);
     props.set(ProcessProperties.CLUSTER_SEARCH_HOSTS, "1.2.3.4:9000,1.2.3.5:8080");
-    Map<String, String> settings = new EsSettings(props, new EsFileSystem(props)).build();
+    Map<String, String> settings = new EsSettings(props, new EsFileSystem(props), System2.INSTANCE).build();
 
     assertThat(settings.get("discovery.zen.ping.unicast.hosts")).isEqualTo("1.2.3.4:9000,1.2.3.5:8080");
     assertThat(settings.get("discovery.zen.minimum_master_nodes")).isEqualTo("2");
@@ -166,7 +222,7 @@ public class EsSettingsTest {
     Props props = minProps(CLUSTER_ENABLED);
     props.set(ProcessProperties.SEARCH_MINIMUM_MASTER_NODES, "ꝱꝲꝳପ");
 
-    EsSettings underTest = new EsSettings(props, new EsFileSystem(props));
+    EsSettings underTest = new EsSettings(props, new EsFileSystem(props), System2.INSTANCE);
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Value of property sonar.search.minimumMasterNodes is not an integer:");
@@ -177,7 +233,7 @@ public class EsSettingsTest {
   public void cluster_is_enabled_with_defined_minimum_master_nodes() throws Exception {
     Props props = minProps(CLUSTER_ENABLED);
     props.set(ProcessProperties.SEARCH_MINIMUM_MASTER_NODES, "5");
-    Map<String, String> settings = new EsSettings(props, new EsFileSystem(props)).build();
+    Map<String, String> settings = new EsSettings(props, new EsFileSystem(props), System2.INSTANCE).build();
 
     assertThat(settings.get("discovery.zen.minimum_master_nodes")).isEqualTo("5");
   }
@@ -186,7 +242,7 @@ public class EsSettingsTest {
   public void cluster_is_enabled_with_defined_initialTimeout() throws Exception {
     Props props = minProps(CLUSTER_ENABLED);
     props.set(ProcessProperties.SEARCH_INITIAL_STATE_TIMEOUT, "10s");
-    Map<String, String> settings = new EsSettings(props, new EsFileSystem(props)).build();
+    Map<String, String> settings = new EsSettings(props, new EsFileSystem(props), System2.INSTANCE).build();
 
     assertThat(settings.get("discovery.initial_state_timeout")).isEqualTo("10s");
   }
@@ -195,7 +251,7 @@ public class EsSettingsTest {
   public void in_standalone_initialTimeout_is_not_overridable() throws Exception {
     Props props = minProps(CLUSTER_DISABLED);
     props.set(ProcessProperties.SEARCH_INITIAL_STATE_TIMEOUT, "10s");
-    Map<String, String> settings = new EsSettings(props, new EsFileSystem(props)).build();
+    Map<String, String> settings = new EsSettings(props, new EsFileSystem(props), System2.INSTANCE).build();
 
     assertThat(settings.get("discovery.initial_state_timeout")).isEqualTo("30s");
   }
@@ -204,7 +260,7 @@ public class EsSettingsTest {
   public void in_standalone_minimumMasterNodes_is_not_overridable() throws Exception {
     Props props = minProps(CLUSTER_DISABLED);
     props.set(ProcessProperties.SEARCH_MINIMUM_MASTER_NODES, "5");
-    Map<String, String> settings = new EsSettings(props, new EsFileSystem(props)).build();
+    Map<String, String> settings = new EsSettings(props, new EsFileSystem(props), System2.INSTANCE).build();
 
     assertThat(settings.get("discovery.zen.minimum_master_nodes")).isEqualTo("1");
   }
@@ -213,7 +269,7 @@ public class EsSettingsTest {
   public void enable_marvel() throws Exception {
     Props props = minProps(CLUSTER_DISABLED);
     props.set("sonar.search.marvelHosts", "127.0.0.2,127.0.0.3");
-    Map<String, String> settings = new EsSettings(props, new EsFileSystem(props)).build();
+    Map<String, String> settings = new EsSettings(props, new EsFileSystem(props), System2.INSTANCE).build();
 
     assertThat(settings.get("marvel.agent.exporter.es.hosts")).isEqualTo("127.0.0.2,127.0.0.3");
   }
@@ -222,7 +278,7 @@ public class EsSettingsTest {
   public void enable_http_connector() throws Exception {
     Props props = minProps(CLUSTER_DISABLED);
     props.set(ProcessProperties.SEARCH_HTTP_PORT, "9010");
-    Map<String, String> settings = new EsSettings(props, new EsFileSystem(props)).build();
+    Map<String, String> settings = new EsSettings(props, new EsFileSystem(props), System2.INSTANCE).build();
 
     assertThat(settings.get("http.port")).isEqualTo("9010");
     assertThat(settings.get("http.host")).isEqualTo("127.0.0.1");
@@ -234,7 +290,7 @@ public class EsSettingsTest {
     Props props = minProps(CLUSTER_DISABLED);
     props.set(ProcessProperties.SEARCH_HTTP_PORT, "9010");
     props.set(ProcessProperties.SEARCH_HOST, "127.0.0.2");
-    Map<String, String> settings = new EsSettings(props, new EsFileSystem(props)).build();
+    Map<String, String> settings = new EsSettings(props, new EsFileSystem(props), System2.INSTANCE).build();
 
     assertThat(settings.get("http.port")).isEqualTo("9010");
     assertThat(settings.get("http.host")).isEqualTo("127.0.0.2");

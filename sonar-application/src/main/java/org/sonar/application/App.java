@@ -23,6 +23,7 @@ import java.io.IOException;
 import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.AppSettingsLoader;
 import org.sonar.application.config.AppSettingsLoaderImpl;
+import org.sonar.process.System2;
 import org.sonar.process.command.CommandFactory;
 import org.sonar.process.command.CommandFactoryImpl;
 import org.sonar.application.process.ProcessLauncher;
@@ -52,7 +53,7 @@ public class App {
       appState.registerClusterName(settings.getProps().value(CLUSTER_NAME, "sonarqube"));
       AppReloader appReloader = new AppReloaderImpl(settingsLoader, fileSystem, appState, logging);
       fileSystem.reset();
-      CommandFactory commandFactory = new CommandFactoryImpl(settings.getProps(), fileSystem.getTempDir());
+      CommandFactory commandFactory = new CommandFactoryImpl(settings.getProps(), fileSystem.getTempDir(), System2.INSTANCE);
 
       try (ProcessLauncher processLauncher = new ProcessLauncherImpl(fileSystem.getTempDir())) {
         Scheduler scheduler = new SchedulerImpl(settings, appReloader, commandFactory, processLauncher, appState);

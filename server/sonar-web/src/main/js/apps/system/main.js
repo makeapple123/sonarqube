@@ -23,7 +23,7 @@ import { sortBy } from 'lodash';
 import { getSystemInfo } from '../../api/system';
 import Section from './section';
 import { translate } from '../../helpers/l10n';
-import RestartModal from '../../components/RestartModal';
+import RestartForm from '../../components/common/RestartForm';
 
 const SECTIONS_ORDER = [
   'SonarQube',
@@ -38,6 +38,8 @@ const SECTIONS_ORDER = [
 ];
 
 export default class Main extends React.PureComponent {
+  state = { openRestartForm: false };
+
   componentDidMount() {
     getSystemInfo().then(info => this.setState({ sections: this.parseSections(info) }));
   }
@@ -60,27 +62,24 @@ export default class Main extends React.PureComponent {
 
   orderItems = items => sortBy(items, 'name');
 
-  handleServerRestart = () => {
-    new RestartModal().render();
-  };
+  handleServerRestartOpen = () => this.setState({ openRestartForm: true });
+  handleServerRestartClose = () => this.setState({ openRestartForm: false });
 
   render() {
     let sections = null;
     if (this.state && this.state.sections) {
       sections = this.state.sections
         .filter(section => SECTIONS_ORDER.indexOf(section.name) >= 0)
-        .map(section =>
+        .map(section => (
           <Section key={section.name} section={section.name} items={section.items} />
-        );
+        ));
     }
 
     return (
       <div className="page page-limited">
         <Helmet title={translate('system_info.page')} />
         <header className="page-header">
-          <h1 className="page-title">
-            {translate('system_info.page')}
-          </h1>
+          <h1 className="page-title">{translate('system_info.page')}</h1>
           <div className="page-actions">
             <a href={window.baseUrl + '/api/system/info'} id="download-link">
               Download
@@ -115,9 +114,10 @@ export default class Main extends React.PureComponent {
             <button
               id="restart-server-button"
               className="big-spacer-left"
-              onClick={this.handleServerRestart}>
+              onClick={this.handleServerRestartOpen}>
               Restart Server
             </button>
+            {this.state.openRestartForm && <RestartForm onClose={this.handleServerRestartClose} />}
           </div>
         </header>
         {sections}

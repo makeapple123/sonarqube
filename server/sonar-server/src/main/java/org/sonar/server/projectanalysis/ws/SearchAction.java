@@ -58,7 +58,7 @@ import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameter
 import static org.sonarqube.ws.client.projectanalysis.SearchRequest.DEFAULT_PAGE_SIZE;
 
 public class SearchAction implements ProjectAnalysesWsAction {
-  private static final Set<String> ALLOWED_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.APP);
+  private static final Set<String> ALLOWED_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.APP, Qualifiers.VIEW);
 
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
@@ -153,7 +153,7 @@ public class SearchAction implements ProjectAnalysesWsAction {
 
   private void addProject(SearchData.Builder data) {
     ComponentDto project = componentFinder.getByKey(data.getDbSession(), data.getRequest().getProject());
-    checkArgument(Scopes.PROJECT.equals(project.scope()) && ALLOWED_QUALIFIERS.contains(project.qualifier()), "A project or application is required");
+    checkArgument(Scopes.PROJECT.equals(project.scope()) && ALLOWED_QUALIFIERS.contains(project.qualifier()), "A project, portfolio or application is required");
     data.setProject(project);
   }
 

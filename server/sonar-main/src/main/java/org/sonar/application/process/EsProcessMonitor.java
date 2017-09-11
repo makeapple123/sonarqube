@@ -34,6 +34,7 @@ import org.elasticsearch.common.network.NetworkModule;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.transport.TransportAddress;
+import org.elasticsearch.discovery.MasterNotDiscoveredException;
 import org.elasticsearch.transport.Netty4Plugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,6 +141,9 @@ public class EsProcessMonitor extends AbstractProcessMonitor {
       }
     } catch (NoNodeAvailableException e) {
       return CONNECTION_REFUSED;
+    } catch (MasterNotDiscoveredException e) {
+      LOG.info("Elasticsearch is waiting for a master to be elected. Did you start all the search nodes ?");
+      return KO;
     } catch (Exception e) {
       LOG.error("Failed to check status", e);
       return KO;

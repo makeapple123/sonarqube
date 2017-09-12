@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -122,6 +123,7 @@ public class AddActionTest {
   @Test
   public void add_a_project_notification() {
     ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project);
 
     call(request.setProject(project.getDbKey()));
 
@@ -131,6 +133,7 @@ public class AddActionTest {
   @Test
   public void add_a_global_notification_when_a_project_one_exists() {
     ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project);
     call(request.setProject(project.getDbKey()));
 
     call(request.setProject(null));
@@ -144,6 +147,7 @@ public class AddActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     call(request);
 
+    userSession.addProjectPermission(UserRole.USER, project);
     call(request.setProject(project.getDbKey()));
 
     db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUserId(), project);
@@ -262,6 +266,18 @@ public class AddActionTest {
     expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
 
     call(request.setProject(branch.getDbKey()));
+  }
+
+  @Test
+  public void fail_when_user_does_not_have_BROWSE_permission() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.logIn().setNonRoot().setNonSystemAdministrator();
+
+    expectedException.expect(ForbiddenException.class);
+
+    call(request
+      .setProject(project.getDbKey())
+      .setLogin(userSession.getLogin()));
   }
 
   private TestResponse call(AddRequest.Builder wsRequestBuilder) {

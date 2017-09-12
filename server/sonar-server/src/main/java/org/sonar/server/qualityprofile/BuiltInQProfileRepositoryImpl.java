@@ -19,50 +19,46 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Languages;
-import org.sonar.api.utils.ValidationMessages;
+import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.util.stream.MoreCollectors;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
-import static org.apache.commons.lang.StringUtils.lowerCase;
 
 public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository {
   private static final Logger LOGGER = Loggers.get(BuiltInQProfileRepositoryImpl.class);
   private static final String DEFAULT_PROFILE_NAME = "Sonar way";
 
   private final Languages languages;
-  private final List<ProfileDefinition> definitions;
+  private final List<BuiltInQualityProfilesDefinition> definitions;
+  private final RuleFinder ruleFinder;
   private List<BuiltInQProfile> qProfiles;
 
   /**
-   * Requires for pico container when no {@link ProfileDefinition} is defined at all
+   * Requires for pico container when no {@link BuiltInQualityProfilesDefinition} is defined at all
    */
-  public BuiltInQProfileRepositoryImpl(Languages languages) {
-    this(languages, new ProfileDefinition[0]);
+  public BuiltInQProfileRepositoryImpl(Languages languages, RuleFinder ruleFinder) {
+    this(languages, ruleFinder, new BuiltInQualityProfilesDefinition[0]);
   }
 
-  public BuiltInQProfileRepositoryImpl(Languages languages, ProfileDefinition... definitions) {
+  public BuiltInQProfileRepositoryImpl(Languages languages, RuleFinder ruleFinder, BuiltInQualityProfilesDefinition... definitions) {
     this.languages = languages;
+    this.ruleFinder = ruleFinder;
     this.definitions = ImmutableList.copyOf(definitions);
   }
 
@@ -70,9 +66,12 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
   public void initialize() {
     checkState(qProfiles == null, "initialize must be called only once");
 
-    Profiler profiler = Profiler.create(Loggers.get(getClass())).startInfo("Load quality profiles");
-    ListMultimap<String, RulesProfile> rulesProfilesByLanguage = buildRulesProfilesByLanguage();
-    validateAndClean(rulesProfilesByLanguage);
+    Profiler profiler = Profiler.create(LOGGER).startInfo("Load quality profiles");
+    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+    for (BuiltInQualityProfilesDefinition definition : definitions) {
+      definition.define(context);
+    }
+    rulesProfilesByLanguage = validateAndClean(context);
     this.qProfiles = toFlatList(rulesProfilesByLanguage);
     profiler.stopDebug();
   }
@@ -84,31 +83,7 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
     return qProfiles;
   }
 
-  /**
-   * @return profiles by language
-   */
-  private ListMultimap<String, RulesProfile> buildRulesProfilesByLanguage() {
-    ListMultimap<String, RulesProfile> byLang = ArrayListMultimap.create();
-    Profiler profiler = Profiler.create(Loggers.get(getClass()));
-    for (ProfileDefinition definition : definitions) {
-      profiler.start();
-      ValidationMessages validation = ValidationMessages.create();
-      RulesProfile profile = definition.createProfile(validation);
-      validation.log(LOGGER);
-      if (profile == null) {
-        profiler.stopDebug(format("Loaded definition %s that return no profile", definition));
-      } else {
-        if (!validation.hasErrors()) {
-          checkArgument(isNotEmpty(profile.getName()), "Profile created by Definition %s can't have a blank name", definition);
-          byLang.put(lowerCase(profile.getLanguage(), Locale.ENGLISH), profile);
-        }
-        profiler.stopDebug(format("Loaded definition %s for language %s", profile.getName(), profile.getLanguage()));
-      }
-    }
-    return byLang;
-  }
-
-  private void validateAndClean(ListMultimap<String, RulesProfile> byLang) {
+  private void validateAndClean(BuiltInQualityProfilesDefinition.Context context) {
     byLang.asMap().entrySet()
       .removeIf(entry -> {
         String language = entry.getKey();

@@ -19,19 +19,14 @@
  */
 package org.sonar.server.platform.ws;
 
-import java.util.Map;
-import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.ce.http.CeHttpClient;
-import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.platform.monitoring.Monitor;
 import org.sonar.server.telemetry.TelemetryDataLoader;
 import org.sonar.server.user.UserSession;
-
-import static org.sonar.server.telemetry.TelemetryDataJsonWriter.writeTelemetryData;
 
 /**
  * Implementation of the {@code info} action for the System WebService.
@@ -67,59 +62,66 @@ public class InfoAction implements SystemWsAction {
     userSession.checkIsSystemAdministrator();
 
     JsonWriter json = response.newJsonWriter();
-    writeJson(json);
-    json.close();
-  }
-
-  private void writeJson(JsonWriter json) {
     json.beginObject();
-    for (Monitor monitor : monitors) {
-      Map<String, Object> attributes = monitor.attributes();
-      json.name(monitor.name());
-      json.beginObject();
-      for (Map.Entry<String, Object> attribute : attributes.entrySet()) {
-        json.name(attribute.getKey()).valueObject(attribute.getValue());
-      }
-      json.endObject();
-    }
-    Optional<ProtobufSystemInfo.SystemInfo> ceSysInfo = ceHttpClient.retrieveSystemInfo();
-    if (ceSysInfo.isPresent()) {
-      for (ProtobufSystemInfo.Section section : ceSysInfo.get().getSectionsList()) {
-        json.name(section.getName());
-        json.beginObject();
-        for (ProtobufSystemInfo.Attribute attribute : section.getAttributesList()) {
-          writeAttribute(json, attribute);
-        }
-        json.endObject();
-      }
-    }
-    writeStatistics(json);
+
+    // global section
+    json.prop("cluster", "true");
+    json.prop("clusterName", "foo");
+    json.prop("serverId", "ABC123");
+    json.prop("health", "RED");
+    json
+      .name("healthCauses")
+      .beginArray().beginObject().prop("message", "Requires at least two search nodes").endObject().endArray();
+
+    json.name("settings");
+    json.beginObject();
+    json.prop("sonar.forceAuthentication", true);
     json.endObject();
-  }
 
-  private void writeStatistics(JsonWriter json) {
-    json.name("Statistics");
-    writeTelemetryData(json, statistics.load());
-  }
+    json.name("computeEngine");
+    json
+      .beginObject()
+      .prop("pending", 5)
+      .prop("inProgress", 4)
+      .prop("waitingTimeMs", 4000)
+      .prop("workers", 8)
+      .prop("workersPerNode", 4)
+      .endObject();
 
-  private static void writeAttribute(JsonWriter json, ProtobufSystemInfo.Attribute attribute) {
-    switch (attribute.getValueCase()) {
-      case BOOLEAN_VALUE:
-        json.name(attribute.getKey()).valueObject(attribute.getBooleanValue());
-        break;
-      case LONG_VALUE:
-        json.name(attribute.getKey()).valueObject(attribute.getLongValue());
-        break;
-      case DOUBLE_VALUE:
-        json.name(attribute.getKey()).valueObject(attribute.getDoubleValue());
-        break;
-      case STRING_VALUE:
-        json.name(attribute.getKey()).valueObject(attribute.getStringValue());
-        break;
-      case VALUE_NOT_SET:
-        break;
-      default:
-        throw new IllegalArgumentException("Unsupported type: " + attribute.getValueCase());
-    }
+    json.name("database");
+    json
+      .beginObject()
+      .prop("name", "PostgreSQL")
+      .prop("version", "9.6.3")
+      .endObject();
+
+    json.name("applicationNodes");
+    json
+      .beginArray()
+      .beginObject()
+      .prop("name", "Mont Blanc")
+      .prop("host", "10.158.92.16")
+      .prop("health", "YELLOW")
+      .name("healthCauses").beginArray().beginObject().prop("message", "Db connectivity error").endObject().endArray()
+      .prop("startedAt", 1500000000)
+      .prop("officialDistribution", "true")
+      .prop("processors", 4)
+      .endObject()
+      .endArray();
+
+    json.name("searchNodes");
+    json
+      .beginArray()
+      .beginObject()
+      .prop("name", "Parmelan")
+      .prop("host", "10.158.92.19")
+      .prop("health", "GREEN")
+      .name("healthCauses").beginArray().endArray()
+      .prop("startedAt", 1500004000)
+      .prop("processors", 2)
+      .endObject()
+      .endArray();
+
+    json.endObject().close();
   }
 }

@@ -23,8 +23,9 @@ import com.google.common.collect.ImmutableSet;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
+import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
@@ -79,14 +80,12 @@ public class SendIssueNotificationsStep implements ComputationStep {
 
   private void doExecute(Component project) {
     long analysisDate = analysisMetadataHolder.getAnalysisDate();
-    NewIssuesStatistics newIssuesStats = new NewIssuesStatistics(i -> i.isNew() && i.creationDate().getTime() >= truncateToSeconds(analysisDate));
-    CloseableIterator<DefaultIssue> issues = issueCache.traverse();
-    try {
+    Predicate<Issue> isOnLeakPredicate = i -> i.isNew() && i.creationDate().getTime() >= truncateToSeconds(analysisDate);
+    NewIssuesStatistics newIssuesStats = new NewIssuesStatistics(isOnLeakPredicate);
+    try (CloseableIterator<DefaultIssue> issues = issueCache.traverse()) {
       processIssues(newIssuesStats, issues, project);
-    } finally {
-      issues.close();
     }
-    if (newIssuesStats.hasIssues()) {
+    if (newIssuesStats.hasIssuesOnLeak()) {
       sendNewIssuesNotification(newIssuesStats, project, analysisDate);
       sendNewIssuesNotificationToAssignees(newIssuesStats, project, analysisDate);
     }
@@ -124,26 +123,28 @@ public class SendIssueNotificationsStep implements ComputationStep {
       .setProject(project.getKey(), project.getUuid(), project.getName())
       .setAnalysisDate(new Date(analysisDate))
       .setStatistics(project.getName(), globalStatistics)
-      .setDebt(globalStatistics.debt());
+      .setDebt(globalStatistics.debtOnLeak());
     service.deliver(notification);
   }
 
   private void sendNewIssuesNotificationToAssignees(NewIssuesStatistics statistics, Component project, long analysisDate) {
-    // send email to each user having issues
-    for (Map.Entry<String, NewIssuesStatistics.Stats> assigneeAndStatisticsTuple : statistics.assigneesStatistics().entrySet()) {
-      String assignee = assigneeAndStatisticsTuple.getKey();
-      NewIssuesStatistics.Stats assigneeStatistics = assigneeAndStatisticsTuple.getValue();
-      MyNewIssuesNotification myNewIssuesNotification = newIssuesNotificationFactory
-        .newMyNewIssuesNotification()
-        .setAssignee(assignee);
-      myNewIssuesNotification
-        .setProject(project.getKey(), project.getUuid(), project.getName())
-        .setAnalysisDate(new Date(analysisDate))
-        .setStatistics(project.getName(), assigneeStatistics)
-        .setDebt(assigneeStatistics.debt());
+    statistics.getAssigneesStatistics().entrySet()
+      .stream()
+      .filter(e -> e.getValue().hasIssuesOnLeak())
+      .forEach(e -> {
+        String assignee = e.getKey();
+        NewIssuesStatistics.Stats assigneeStatistics = e.getValue();
+        MyNewIssuesNotification myNewIssuesNotification = newIssuesNotificationFactory
+          .newMyNewIssuesNotification()
+          .setAssignee(assignee);
+        myNewIssuesNotification
+          .setProject(project.getKey(), project.getUuid(), project.getName())
+          .setAnalysisDate(new Date(analysisDate))
+          .setStatistics(project.getName(), assigneeStatistics)
+          .setDebt(assigneeStatistics.debtOnLeak());
 
-      service.deliver(myNewIssuesNotification);
-    }
+        service.deliver(myNewIssuesNotification);
+      });
   }
 
   @Override

@@ -57,7 +57,7 @@ public class NewIssuesStatisticsTest {
     assertThat(underTest.globalStatistics().debt().toMinutes()).isEqualTo(15L);
     assertThat(underTest.globalStatistics().hasIssues()).isTrue();
     assertThat(underTest.hasIssues()).isTrue();
-    assertThat(underTest.assigneesStatistics().get("maynard").hasIssues()).isTrue();
+    assertThat(underTest.getAssigneesStatistics().get("maynard").hasIssues()).isTrue();
   }
 
   @Test

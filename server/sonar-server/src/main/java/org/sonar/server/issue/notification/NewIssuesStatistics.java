@@ -59,7 +59,7 @@ public class NewIssuesStatistics {
       '}';
   }
 
-  public Map<String, Stats> assigneesStatistics() {
+  public Map<String, Stats> getAssigneesStatistics() {
     return assigneesStatistics;
   }
 
@@ -71,7 +71,15 @@ public class NewIssuesStatistics {
     return globalStatistics.hasIssues();
   }
 
-  enum Metric {
+  public boolean hasIssuesOnLeak() {
+    return globalStatistics.hasIssuesOnLeak();
+  }
+
+  public boolean hasIssuesOffLeak() {
+    return globalStatistics.hasIssuesOffLeak();
+  }
+
+  public enum Metric {
     SEVERITY(true), TAG(true), COMPONENT(true), ASSIGNEE(true), DEBT(false), RULE(true);
     private final boolean isComputedByDistribution;
 
@@ -126,8 +134,24 @@ public class NewIssuesStatistics {
       return Duration.create(debtInMinutes.getTotal());
     }
 
+    public Duration debtOnLeak() {
+      return Duration.create(debtInMinutes.getOnLeak());
+    }
+
+    public Duration debtOffLeak() {
+      return Duration.create(debtInMinutes.getOffLeak());
+    }
+
     public boolean hasIssues() {
       return getDistributedMetricStats(SEVERITY).getTotal() > 0;
+    }
+
+    public boolean hasIssuesOnLeak() {
+      return getDistributedMetricStats(SEVERITY).getOnLeak() > 0;
+    }
+
+    public boolean hasIssuesOffLeak() {
+      return getDistributedMetricStats(SEVERITY).getOffLeak() > 0;
     }
 
     public DistributedMetricStatsInt statsForMetric(Metric metric) {

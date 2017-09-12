@@ -30,9 +30,9 @@ import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.Component.Type;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueCache;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleRepository;
 import org.sonar.server.computation.task.step.ComputationStep;
@@ -107,8 +107,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   @Test
   public void send_global_new_issues_notification() throws Exception {
     issueCache.newAppender().append(
-      new DefaultIssue().setSeverity(Severity.BLOCKER).setEffort(ISSUE_DURATION)
-      ).close();
+      new DefaultIssue().setSeverity(Severity.BLOCKER).setEffort(ISSUE_DURATION).setCreationDate(new Date(ANALYSE_DATE))).close();
 
     when(notificationService.hasProjectSubscribersForTypes(PROJECT_UUID, SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
 
@@ -124,8 +123,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   @Test
   public void send_new_issues_notification_to_user() throws Exception {
     issueCache.newAppender().append(
-      new DefaultIssue().setSeverity(Severity.BLOCKER).setEffort(ISSUE_DURATION).setAssignee(ISSUE_ASSIGNEE)
-      ).close();
+      new DefaultIssue().setSeverity(Severity.BLOCKER).setEffort(ISSUE_DURATION).setAssignee(ISSUE_ASSIGNEE).setCreationDate(new Date(ANALYSE_DATE))).close();
 
     when(notificationService.hasProjectSubscribersForTypes(PROJECT_UUID, SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
 
@@ -141,7 +139,12 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
   @Test
   public void send_issues_change_notification() throws Exception {
-    DefaultIssue issue = new DefaultIssue().setSeverity(Severity.BLOCKER).setEffort(ISSUE_DURATION).setChanged(true).setSendNotifications(true);
+    DefaultIssue issue = new DefaultIssue()
+      .setSeverity(Severity.BLOCKER)
+      .setEffort(ISSUE_DURATION)
+      .setChanged(true)
+      .setSendNotifications(true)
+      .setCreationDate(new Date(ANALYSE_DATE));
     issueCache.newAppender().append(issue).close();
 
     when(notificationService.hasProjectSubscribersForTypes(PROJECT_UUID, SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);

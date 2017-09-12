@@ -48,7 +48,7 @@ import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.TAG
 
 public class NewIssuesNotificationTest {
 
-  NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats();
+  NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats(i -> true);
   UserIndex userIndex = mock(UserIndex.class);
   DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
   Durations durations = mock(Durations.class);

@@ -20,6 +20,8 @@
 package org.sonar.server.computation.task.projectanalysis.step;
 
 import com.google.common.collect.ImmutableSet;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
@@ -76,7 +78,8 @@ public class SendIssueNotificationsStep implements ComputationStep {
   }
 
   private void doExecute(Component project) {
-    NewIssuesStatistics newIssuesStats = new NewIssuesStatistics();
+    long analysisDate = analysisMetadataHolder.getAnalysisDate();
+    NewIssuesStatistics newIssuesStats = new NewIssuesStatistics(i -> i.isNew() && i.creationDate().getTime() >= truncateToSeconds(analysisDate));
     CloseableIterator<DefaultIssue> issues = issueCache.traverse();
     try {
       processIssues(newIssuesStats, issues, project);
@@ -84,10 +87,15 @@ public class SendIssueNotificationsStep implements ComputationStep {
       issues.close();
     }
     if (newIssuesStats.hasIssues()) {
-      long analysisDate = analysisMetadataHolder.getAnalysisDate();
       sendNewIssuesNotification(newIssuesStats, project, analysisDate);
       sendNewIssuesNotificationToAssignees(newIssuesStats, project, analysisDate);
     }
+  }
+
+  private static long truncateToSeconds(long analysisDate) {
+    Instant instant = new Date(analysisDate).toInstant();
+    instant = instant.truncatedTo(ChronoUnit.SECONDS);
+    return Date.from(instant).getTime();
   }
 
   private void processIssues(NewIssuesStatistics newIssuesStats, CloseableIterator<DefaultIssue> issues, Component project) {

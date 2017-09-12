@@ -21,6 +21,7 @@ package org.sonar.server.issue.notification;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.Duration;
@@ -31,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class NewIssuesStatisticsTest {
 
-  NewIssuesStatistics underTest = new NewIssuesStatistics();
+  NewIssuesStatistics underTest = new NewIssuesStatistics(Issue::isNew);
 
   @Test
   public void add_issues_with_correct_global_statistics() {
@@ -65,7 +66,11 @@ public class NewIssuesStatisticsTest {
   }
 
   private int countDistribution(Metric metric, String label) {
-    return underTest.globalStatistics().countForMetric(metric, label);
+    return underTest.globalStatistics()
+      .getDistributedMetricStats(metric)
+      .getForLabel(label)
+      .map(MetricStatsInt::getTotal)
+      .orElse(0);
   }
 
   private DefaultIssue defaultIssue() {

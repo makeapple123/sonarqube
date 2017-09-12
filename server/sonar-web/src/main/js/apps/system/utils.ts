@@ -17,20 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RouterState, RouteComponent, IndexRouteProps } from 'react-router';
+import { sortBy } from 'lodash';
 
-const routes = [
-  {
-    getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
-      import('./components/App').then(i => callback(null, { component: i.default }));
-    }
-  },
-  {
-    path: 'old',
-    getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-      import('./main').then(i => callback(null, (i as any).default));
-    }
-  }
-];
+const parseSysInfoItems = (data: any) =>
+  sortBy(Object.keys(data).map(key => ({ name: key, value: data[key] })), 'name');
 
-export default routes;
+export function parseSysInfo(data: any) {
+  return Object.keys(data).map(key => ({ name: key, items: parseSysInfoItems(data[key]) }));
+}
